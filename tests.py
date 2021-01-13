@@ -13,6 +13,7 @@ from inspect import signature
 from sys import getsizeof
 
 from dataclassy import dataclass, as_dict, as_tuple, make_dataclass, fields, replace, values, Internal
+from dataclassy.dataclass import USER_INIT_ALIAS
 
 
 class Tests(unittest.TestCase):
@@ -257,6 +258,22 @@ class Tests(unittest.TestCase):
         # same = SameNameArgs(0, 1)
         # self.assertTrue(same.path == 0)
         # self.assertTrue(same.other_path == 1)
+
+    def test_init_subclass(self):
+        @dataclass
+        class NoInit:
+            a: int
+        @dataclass
+        class NoInitInSubClass(NoInit):
+            b: int
+        class InitInSubClass(NoInit):
+            def __init__(self, c):
+                self.c = c
+
+        self.assertTrue(hasattr(InitInSubClass, USER_INIT_ALIAS))
+        self.assertFalse(hasattr(NoInitInSubClass, USER_INIT_ALIAS))
+        initinsubclass = InitInSubClass(0, 1)
+        self.assertEqual(initinsubclass.c, 1)
 
     def test_fields(self):
         """Test fields()."""
