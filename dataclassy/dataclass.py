@@ -56,7 +56,8 @@ class DataClassMeta(type):
 
         # create/apply generated methods and attributes
         # TODO: neaten
-        user_init = (not dataclass_bases and type(dict_.get('__init__')) is Function) or USER_INIT_ALIAS in dict_
+        user_init = (not dataclass_bases and type(dict_.get('__init__')) is Function)
+        inherited_user_init = USER_INIT_ALIAS in dict_
 
         if options['slots']:
             # values with default values must only be present in slots, not dict, otherwise Python will interpret them
@@ -73,7 +74,7 @@ class DataClassMeta(type):
         if options['init'] and all_annotations:  # only generate __init__ if there are fields to set
             if user_init:
                 dict_[USER_INIT_ALIAS] = dict_.pop('__init__')  # could also maybe use __post_init__ if not confusing
-            dict_['__init__'] = _generate_init(all_annotations, all_defaults, user_init,
+            dict_['__init__'] = _generate_init(all_annotations, all_defaults, user_init or inherited_user_init,
                                                options['kwargs'], options['frozen'])
         if options['repr']:
             dict_.setdefault('__repr__', __repr__)
