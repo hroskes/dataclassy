@@ -52,7 +52,9 @@ class DataClassMeta(type):
         dict_['__dataclass__'] = options
 
         # delete what will become stale references so that Python creates new ones
-        del dict_['__dict__'], dict_['__weakref__']
+        dict_.pop('__dict__', None)
+        dict_.pop('__weakref__', None)
+        dict_.pop('__classcell__', None)
 
         # create/apply generated methods and attributes
         # TODO: neaten
