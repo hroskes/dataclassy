@@ -40,7 +40,7 @@ class DataClassMeta(type):
         dataclass_bases = [vars(b) for b in bases if hasattr(b, '__dataclass__')]
         for b in dataclass_bases + [dict_]:
             all_annotations.update(b.get('__annotations__', {}))
-            all_defaults.update(b.get('__defaults__', dict_))
+            all_defaults.update({k: v for k, v in b.get('__defaults__', dict_).items() if k in all_annotations})
             all_slots.update(b.get('__slots__', set()))
             options.update(b.get('__dataclass__', {}))
         options.update(kwargs)
