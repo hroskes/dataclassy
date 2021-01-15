@@ -36,6 +36,7 @@ class DataClassMeta(type):
         all_defaults = {}
         all_slots = set()
         options = dict(mcs.DEFAULT_OPTIONS)
+        has_user_init = False
 
         dataclass_bases = [vars(b) for b in bases if hasattr(b, '__dataclass__')]
         for b in dataclass_bases + [dict_]:
@@ -43,6 +44,7 @@ class DataClassMeta(type):
             all_defaults.update({k: v for k, v in b.get('__defaults__', dict_).items() if k in all_annotations})
             all_slots.update(b.get('__slots__', set()))
             options.update(b.get('__dataclass__', {}))
+            has_user_init |= options.get('has_user_init', False)
         options.update(kwargs)
 
         # fill out this class' dict and store defaults, annotations and decorator options for future subclasses
@@ -61,6 +63,8 @@ class DataClassMeta(type):
         user_init = (not dataclass_bases and type(dict_.get('__init__')) is Function)
         explicit_user_init = USER_INIT_ALIAS in dict_
         inherited_user_init = any(USER_INIT_ALIAS in b for b in dataclass_bases)
+        has_user_init |= user_init or explicit_user_init or inherited_user_init
+        dict_['__dataclass__']['has_user_init'] = has_user_init
 
         if options['slots']:
             # values with default values must only be present in slots, not dict, otherwise Python will interpret them
@@ -77,7 +81,7 @@ class DataClassMeta(type):
         if options['init'] and all_annotations:  # only generate __init__ if there are fields to set
             if user_init:
                 dict_[USER_INIT_ALIAS] = dict_.pop('__init__')  # could also maybe use __post_init__ if not confusing
-            dict_['__init__'] = _generate_init(all_annotations, all_defaults, user_init or explicit_user_init or inherited_user_init,
+            dict_['__init__'] = _generate_init(all_annotations, all_defaults, has_user_init or explicit_user_init or inherited_user_init,
                                                options['kwargs'], options['frozen'])
         if options['repr']:
             dict_.setdefault('__repr__', __repr__)
