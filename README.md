@@ -1,5 +1,5 @@
 # dataclassy
-Your data classes just got an upgrade! **dataclassy** is a reimplementation of data classes in Python — an alternative to the built-in [dataclasses module](https://docs.python.org/3/library/dataclasses.html) that avoids many of [its](https://stackoverflow.com/questions/54678337) [common](https://stackoverflow.com/q/51575931) [pitfalls](https://stackoverflow.com/q/50180735). dataclassy is designed to be more flexible, less verbose, and more powerful than dataclasses, while retaining a familiar interface.
+Your data classes just got an upgrade! **dataclassy** is a reimplementation of data classes in Python - an alternative to the built-in [dataclasses module](https://docs.python.org/3/library/dataclasses.html) that avoids many of [its](https://stackoverflow.com/questions/54678337) [common](https://stackoverflow.com/q/51575931) [pitfalls](https://stackoverflow.com/q/50180735). dataclassy is designed to be more flexible, less verbose, and more powerful than dataclasses, while retaining a familiar interface.
 
 ### What are data classes?
 Simply put, data classes are classes optimised for storing data. In this sense they are similar to record or struct types in other languages. In Python, data classes take the form of a decorator which, when applied to a class, automatically generates methods to set the class's fields from arguments to its constructor, represent it as a string, and more.
@@ -254,5 +254,16 @@ Return a new copy of `dataclass` with field values replaced as specified in `cha
 #### `Internal`
 The `Internal` type wrapper marks a field as being "internal" to the data class. Fields which begin with the ["internal use"](https://www.python.org/dev/peps/pep-0008/#descriptive-naming-styles) idiomatic indicator `_` or the [private field](https://docs.python.org/3/tutorial/classes.html#private-variables) interpreter indicator `__` are automatically treated as internal fields.  The `Internal` type wrapper therefore serves as an alternative method of indicating that a field is internal for situations where you are unable to name your fields in this way.
 
+#### `Hashed`
+Use `Hashed` to wrap the type annotations of fields that you want to be included in a data class' `__hash__`. The value hashed by `__hash__` consists of a tuple of the instance's type followed by any fields marked as `Hashed`.
+
 #### `DataClass`
 Use this type hint to indicate that a variable, parameter or field should be a generic data class instance. For example, dataclassy uses these in the signatures of `as_dict`, `as_tuple` and `values` to show that these functions should be called on data class instances.
+
+### MyPy support
+In order to use dataclassy in projects with mypy, you will need to use the mypy plugin. You can create a `mypy.ini` or `.mypy.ini` for such projects with the following content:
+
+```
+[mypy]
+plugins = dataclassy.mypy
+```
